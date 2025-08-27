@@ -6,7 +6,6 @@ from flask import Flask, request, send_file
 
 app = Flask(__name__)
 
-# BUG 1: Hardcoded credentials
 DATABASE_PASSWORD = "admin123"
 API_KEY = "sk-1234567890abcdef"
 
@@ -21,7 +20,6 @@ def login():
     username = request.form['username']
     password = request.form['password']
     
-    # BUG 2: SQL Injection vulnerability
     conn = sqlite3.connect('users.db')
     query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
     cursor = conn.execute(query)
@@ -34,7 +32,6 @@ def login():
 
 @app.route('/backup')
 def backup_database():
-    # BUG 3: Command Injection vulnerability
     backup_name = request.args.get('name', 'backup')
     command = f"cp users.db backups/{backup_name}.db"
     os.system(command)
@@ -42,14 +39,12 @@ def backup_database():
 
 @app.route('/download')
 def download_file():
-    # BUG 4: Path Traversal vulnerability
     filename = request.args.get('file')
     file_path = f"uploads/{filename}"
     return send_file(file_path)
 
 @app.route('/generate_token')
 def generate_token():
-    # BUG 5: Weak randomness for security-critical operation
     token_length = 8
     token = ""
     for i in range(token_length):
@@ -59,7 +54,6 @@ def generate_token():
 
 @app.route('/ping')
 def ping_server():
-    # Additional command injection example
     host = request.args.get('host', 'localhost')
     result = subprocess.check_output(f"ping -c 1 {host}", shell=True)
     return f"Ping result: {result.decode()}"
